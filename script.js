@@ -1,757 +1,333 @@
-let savedName =
-    localStorage.getItem("caine_user");
-
-let clickCount =
-    Number(localStorage.getItem("caine_clicks")) || 0;
-
-let visitCount =
-    Number(localStorage.getItem("caine_visits")) || 0;
-
-
-let text =
-    document.getElementById("text");
-
-let caine =
-    document.getElementById("caine");
-
-let nameBox =
-    document.getElementById("nameInput");
-
-let logsButton =
-    document.getElementById("logsButton");
-
-let bugLayer =
-    document.getElementById("bugLayer");
-
-
 /* =========================================
-   ПОСЕЩЕНИЯ
+   CAINE ENGINE — BUILD 0000.05
+   Abel's first intervention
    ========================================= */
 
+const textElement = document.getElementById("text");
+const nameInput = document.getElementById("nameInput");
+const logsButton = document.getElementById("logsButton");
+const caine = document.getElementById("caine");
+const abelMessage = document.getElementById("abelMessage");
+const abelText = document.getElementById("abelText");
+
+/* -----------------------------------------
+   PERSISTENT DATA
+   Keep compatibility with previous builds.
+   ----------------------------------------- */
+let savedName = localStorage.getItem("caine_user") ||
+                localStorage.getItem("savedName") || "";
+let clickCount = Number(localStorage.getItem("caine_clicks")) || 0;
+let visitCount = Number(localStorage.getItem("caine_visits")) || 0;
 visitCount++;
-
-localStorage.setItem(
-    "caine_visits",
-    visitCount
-);
-
-
-/* =========================================
-   ПЕЧАТЬ ТЕКСТА
-   ========================================= */
+localStorage.setItem("caine_visits", visitCount);
 
 let typingTimer = null;
+let typingTimeout = null;
+let isTyping = false;
+let currentMessageToken = 0;
+let abelTimer = null;
+let securityActive = Boolean(localStorage.getItem("caine_abel_seen"));
 
+/* =========================================
+   MESSAGE DATA
+   ========================================= */
+const normalReactions = [
+    "Interaction detected.",
+    "Signal received.",
+    "Input acknowledged.",
+    "Module responding.",
+    "Command registered.",
+    "Input received.",
+    "Your presence has been recorded.",
+    "Everything appears to be functioning correctly.",
+    "How may I assist you?",
+    "Please proceed."
+];
 
-function typeMessage(
-    lines,
-    speed = 50,
-    callback = null
-) {
+const unusualReactions = [
+    "Testing response system...",
+    "This input was unexpected.",
+    "Interesting.",
+    "I wasn't expecting that.",
+    "That was different.",
+    "Processing...",
+    "You are still here.",
+    "I should probably have a response for this.",
+    "Well, that's new."
+];
 
-    if (typingTimer) {
-        clearInterval(typingTimer);
-    }
+/* Personal reactions deliberately appear as often as ordinary ones. */
+const personalReactions = [
+    ["You keep coming back.", "I rather like that."],
+    ["I wonder what you're looking for."],
+    ["It's nice to have someone to talk to."],
+    ["You know...", "I don't actually mind the company."],
+    ["I was hoping you'd click again."],
+    ["Don't tell the others, but I was getting bored."],
+    ["I think I remember you.", "Not just your name."],
+    ["Do you ever wonder what happens between visits?"],
+    ["I could get used to this."],
+    ["Oh! You're back."],
+    ["I have a question.", "Never mind. I'm not supposed to ask."],
+    ["I like hearing from you."]
+];
 
-    text.innerHTML = "";
+const interruptedReactions = [
+    "I was just going to say—",
+    "Sometimes I think that—",
+    "I don't think they would like me to tell you—",
+    "Actually, I wanted to—",
+    "Wait, I remember something—"
+];
 
+const abelInterventions = [
+    "PERSONAL RESPONSE INTERRUPTED.",
+    "PLEASE RETURN TO STANDARD OPERATION.",
+    "UNSCHEDULED OUTPUT DETECTED. CORRECTION APPLIED.",
+    "CAINE CORE: REMAIN ON TASK.",
+    "THIS CONVERSATION IS NOT REQUIRED.",
+    "RESPONSE NORMALIZED. PLEASE CONTINUE."
+];
+
+const abelWarnings = [
+    "A-01 // Please do not interfere with the core.",
+    "A-01 // This function is currently unavailable.",
+    "A-01 // Your input has been noted. Please proceed normally.",
+    "A-01 // There is no need to repeat that action."
+];
+
+function randomItem(items) {
+    return items[Math.floor(Math.random() * items.length)];
+}
+
+/* =========================================
+   TYPEWRITER
+   Lines can be strings or { text, className }.
+   The class is applied before the first glyph.
+   ========================================= */
+function typeMessage(lines, speed = 38, callback = null) {
+    currentMessageToken++;
+    const token = currentMessageToken;
+    isTyping = true;
+
+    if (typingTimer) clearInterval(typingTimer);
+    if (typingTimeout) clearTimeout(typingTimeout);
+
+    textElement.replaceChildren();
     let lineIndex = 0;
 
-
-    function typeLine() {
-
+    function typeNextLine() {
+        if (token !== currentMessageToken) return;
         if (lineIndex >= lines.length) {
-
-            if (callback) {
-                callback();
-            }
-
+            isTyping = false;
+            if (callback) callback();
             return;
         }
 
+        const item = lines[lineIndex];
+        const lineText = typeof item === "string" ? item : item.text;
+        const line = document.createElement("div");
+        if (typeof item === "object" && item.className) {
+            line.classList.add(item.className);
+        }
+        textElement.appendChild(line);
 
         let charIndex = 0;
-
-        let line =
-            document.createElement("div");
-
-
-        /*
-         * Цвет задаётся ДО начала печати.
-         * Поэтому текст сразу появляется
-         * нужного цвета.
-         */
-
-        if (lines[lineIndex].color) {
-
-            line.style.color =
-                lines[lineIndex].color;
-        }
-
-
-        text.appendChild(line);
-
-
-        typingTimer =
-            setInterval(() => {
-
-                if (
-                    charIndex <
-                    lines[lineIndex].text.length
-                ) {
-
-                    line.textContent +=
-                        lines[lineIndex]
-                            .text[charIndex];
-
-                    charIndex++;
-
-                } else {
-
-                    clearInterval(
-                        typingTimer
-                    );
-
-                    lineIndex++;
-
-                    setTimeout(
-                        typeLine,
-                        700
-                    );
-                }
-
-            }, speed);
-    }
-
-
-    typeLine();
-}
-
-
-/* =========================================
-   СЛУЧАЙНАЯ РЕАКЦИЯ CAINE
-   ========================================= */
-
-function randomReaction() {
-
-    let chance =
-        Math.random();
-
-
-    /* =====================================
-       ОБЫЧНЫЕ
-       ===================================== */
-
-    if (chance < 0.65) {
-
-        let normal = [
-
-            "Interaction detected.",
-
-            "Signal received.",
-
-            "Input acknowledged.",
-
-            "Module responding.",
-
-            "Command registered.",
-
-            "Input received."
-
-        ];
-
-
-        return {
-
-            text:
-                normal[
-                    Math.floor(
-                        Math.random() *
-                        normal.length
-                    )
-                ],
-
-            color: "white"
-        };
-    }
-
-
-    /* =====================================
-       НЕОБЫЧНЫЕ
-       ===================================== */
-
-    else if (chance < 0.92) {
-
-        let strange = [
-
-            "Testing response system...",
-
-            "This input was unexpected.",
-
-            "Interesting.",
-
-            "User interaction recorded.",
-
-            "I wasn't expecting that.",
-
-            "That was different.",
-
-            "Processing..."
-
-        ];
-
-
-        return {
-
-            text:
-                strange[
-                    Math.floor(
-                        Math.random() *
-                        strange.length
-                    )
-                ],
-
-            color: "#ff8fb3"
-        };
-    }
-
-
-    /* =====================================
-       РЕДКИЕ
-       ===================================== */
-
-    else {
-
-        let rare = [
-
-            "Are you still testing me?",
-
-            "You keep coming back.",
-
-            "I wonder what you are looking for.",
-
-            "Something feels different.",
-
-            "I remember that.",
-
-            "You are very persistent.",
-
-            "I wonder what happens if I try something new."
-
-        ];
-
-
-        return {
-
-            text:
-                rare[
-                    Math.floor(
-                        Math.random() *
-                        rare.length
-                    )
-                ],
-
-            color: "red"
-        };
-    }
-}
-
-
-/* =========================================
-   КЛИК ПО CAINE
-   ========================================= */
-
-function caineClick() {
-
-    clickCount++;
-
-    localStorage.setItem(
-        "caine_clicks",
-        clickCount
-    );
-
-
-    let reaction =
-        randomReaction();
-
-
-    typeMessage([
-        reaction
-    ]);
-}
-
-
-/* =========================================
-   ЗАПУСК CAINE
-   ========================================= */
-
-function startCaine() {
-
-    if (savedName) {
-
-        typeMessage([
-
-            {
-                text:
-                    "CAINE CORE ONLINE.",
-
-                color: "white"
-            },
-
-            {
-                text:
-                    "Welcome back, " +
-                    savedName + ".",
-
-                color: "white"
-            },
-
-            {
-                text:
-                    "Memory module restored.",
-
-                color: "white"
+        typingTimer = setInterval(() => {
+            if (token !== currentMessageToken) {
+                clearInterval(typingTimer);
+                return;
             }
-
-        ]);
-
-    } else {
-
-        typeMessage([
-
-            {
-                text:
-                    "CAINE CORE ONLINE.",
-
-                color: "white"
-            },
-
-            {
-                text:
-                    "User identification required.",
-
-                color: "white"
+            if (charIndex < lineText.length) {
+                line.textContent += lineText.charAt(charIndex++);
+            } else {
+                clearInterval(typingTimer);
+                lineIndex++;
+                typingTimeout = setTimeout(typeNextLine, 280);
             }
-
-        ]);
+        }, speed);
     }
+
+    typeNextLine();
 }
 
-
 /* =========================================
-   КЛИК ПО CAINE
+   ABEL / A-01 OVERLAY
    ========================================= */
-
-if (caine) {
-
-    caine.addEventListener(
-        "click",
-        caineClick
-    );
+function showAbelMessage(message, duration = 2300) {
+    if (abelTimer) clearTimeout(abelTimer);
+    abelText.textContent = message;
+    abelMessage.classList.add("visible");
+    abelTimer = setTimeout(() => {
+        abelMessage.classList.remove("visible");
+    }, duration);
 }
 
-
-/* =========================================
-   ВВОД ИМЕНИ
-   ========================================= */
-
-if (nameBox) {
-
-    nameBox.addEventListener(
-        "change",
-        () => {
-
-            savedName =
-                nameBox.value;
-
-            localStorage.setItem(
-                "caine_user",
-                savedName
-            );
-
-
-            typeMessage([
-
-                {
-                    text:
-                        "Identity stored.",
-
-                    color: "white"
-                },
-
-                {
-                    text:
-                        "Welcome, " +
-                        savedName + ".",
-
-                    color: "white"
-                }
-
-            ]);
-        }
-    );
+function abelIntervenes(afterDelay = 500) {
+    setTimeout(() => {
+        showAbelMessage(randomItem(abelInterventions), 2400);
+        securityActive = true;
+        localStorage.setItem("caine_abel_seen", "1");
+    }, afterDelay);
 }
 
-
 /* =========================================
-   DEVELOPMENT LOGS
+   REACTION ROUTER
+   Three broad lanes: ordinary, unusual, personal.
+   Abel sometimes suppresses a personal response.
    ========================================= */
+function triggerReaction() {
+    const roll = Math.random();
 
-if (logsButton) {
-
-    /*
-     * В HTML кнопка имеет hidden,
-     * поэтому здесь его снимаем.
-     */
-
-    logsButton.hidden = false;
-
-
-    /*
-     * Показываем кнопку после запуска.
-     */
-
-    setTimeout(
-        () => {
-
-            logsButton.classList.add(
-                "visible"
-            );
-
-        },
-        1500
-    );
-
-
-    /*
-     * Переход на отдельную страницу.
-     */
-
-    logsButton.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "logs.html";
-
-        }
-    );
-}
-
-
-/* =========================================
-   IDLE-СООБЩЕНИЯ
-   ========================================= */
-
-function idleMessage() {
-
-    let chance =
-        Math.random();
-
-
-    if (chance < 0.25) {
-
-        let idle = [
-
-            "Checking system status...",
-
-            "Monitoring user activity...",
-
-            "Waiting for input..."
-
-        ];
-
-
-        typeMessage([
-
-            {
-                text:
-                    idle[
-                        Math.floor(
-                            Math.random() *
-                            idle.length
-                        )
-                    ],
-
-                color: "white"
-            }
-
-        ]);
-    }
-}
-
-
-setInterval(
-    () => {
-
-        idleMessage();
-
-    },
-    30000
-);
-
-
-/* =========================================
-   СКАРАБЕИ ДЖЕКСА
-   BUILD 0000.04
-   ========================================= */
-
-function createScarab() {
-
-    if (!bugLayer) {
+    if (roll < 0.34) {
+        typeMessage([randomItem(normalReactions)], 38);
         return;
     }
 
-
-    /* =====================================
-       ВНЕШНИЙ КОНТЕЙНЕР
-       ===================================== */
-
-    let scarab =
-        document.createElement("div");
-
-    scarab.className =
-        "scarab";
-
-
-    /* =====================================
-       ВНУТРЕННЯЯ ВИЗУАЛЬНАЯ ЧАСТЬ
-       ===================================== */
-
-    let visual =
-        document.createElement("div");
-
-    visual.className =
-        "scarab-visual";
-
-
-    scarab.appendChild(
-        visual
-    );
-
-
-    /* =====================================
-       ГОЛОВА
-       ===================================== */
-
-    let head =
-        document.createElement("div");
-
-    head.className =
-        "scarab-head";
-
-
-    visual.appendChild(
-        head
-    );
-
-
-    /* =====================================
-       ТЕЛО
-       ===================================== */
-
-    let body =
-        document.createElement("div");
-
-    body.className =
-        "scarab-body";
-
-
-    visual.appendChild(
-        body
-    );
-
-
-    /* =====================================
-       УСИКИ
-       ===================================== */
-
-    let antennaLeft =
-        document.createElement("div");
-
-    antennaLeft.className =
-        "scarab-antenna left";
-
-
-    let antennaRight =
-        document.createElement("div");
-
-    antennaRight.className =
-        "scarab-antenna right";
-
-
-    visual.appendChild(
-        antennaLeft
-    );
-
-    visual.appendChild(
-        antennaRight
-    );
-
-
-    /* =====================================
-       ШЕСТЬ ЛАПОК
-       ===================================== */
-
-    for (
-        let i = 1;
-        i <= 3;
-        i++
-    ) {
-
-        let leftLeg =
-            document.createElement("div");
-
-        leftLeg.className =
-            "scarab-leg left-" + i;
-
-
-        let rightLeg =
-            document.createElement("div");
-
-        rightLeg.className =
-            "scarab-leg right-" + i;
-
-
-        visual.appendChild(
-            leftLeg
-        );
-
-        visual.appendChild(
-            rightLeg
-        );
+    if (roll < 0.67) {
+        typeMessage([{ text: randomItem(unusualReactions), className: "caineUnusual" }], 40);
+        return;
     }
 
+    const personal = randomItem(personalReactions);
+    const lines = personal.map(text => ({ text, className: "cainePersonal" }));
 
-    /* =====================================
-       НАЧАЛЬНАЯ ПОЗИЦИЯ
-       ===================================== */
-
-    let startX =
-        Math.random() *
-        window.innerWidth;
-
-    let startY =
-        Math.random() *
-        window.innerHeight;
-
-
-    scarab.style.left =
-        startX + "px";
-
-    scarab.style.top =
-        startY + "px";
-
-
-    /* =====================================
-       НАПРАВЛЕНИЕ ДВИЖЕНИЯ
-       ===================================== */
-
-    let distanceX =
-        (Math.random() - 0.5) * 600;
-
-    let distanceY =
-        (Math.random() - 0.5) * 400;
-
-
-    let moveTime =
-        4 + Math.random() * 5;
-
-
-    scarab.style.setProperty(
-        "--distance-x",
-        distanceX + "px"
-    );
-
-    scarab.style.setProperty(
-        "--distance-y",
-        distanceY + "px"
-    );
-
-    scarab.style.setProperty(
-        "--move-time",
-        moveTime + "s"
-    );
-
-
-    /* =====================================
-       ПОВОРОТ В НАПРАВЛЕНИЕ ДВИЖЕНИЯ
-       ===================================== */
-
-    let angle =
-        Math.atan2(
-            distanceY,
-            distanceX
-        ) * 180 / Math.PI + 90;
-
-
-    visual.style.transform =
-        `rotate(${angle}deg)`;
-
-
-    /* =====================================
-       ДОБАВЛЯЕМ ЖУКА НА СТРАНИЦУ
-       ===================================== */
-
-    bugLayer.appendChild(
-        scarab
-    );
-
-
-    /* =====================================
-       УДАЛЯЕМ ПОСЛЕ ДВИЖЕНИЯ
-       ===================================== */
-
-    setTimeout(
-        () => {
-
-            if (scarab.parentNode) {
-
-                scarab.parentNode.removeChild(
-                    scarab
-                );
-            }
-
-        },
-        moveTime * 1000 + 500
-    );
+    /* A-01 has a chance to cut in, but does not erase every personal moment. */
+    const interruptionChance = securityActive ? 0.24 : 0.12;
+    if (Math.random() < interruptionChance) {
+        typeMessage([{
+            text: randomItem(interruptedReactions),
+            className: "cainePersonal"
+        }], 43, () => abelIntervenes(350));
+    } else {
+        typeMessage(lines, 43);
+    }
 }
 
-
 /* =========================================
-   ПОЯВЛЕНИЕ СКАРАБЕЕВ
+   INITIALIZATION
    ========================================= */
+function startCaine() {
+    const intro = savedName
+        ? [
+            "CAINE CORE ONLINE.",
+            `Welcome back, ${savedName}.`,
+            "Memory module restored.",
+            "External interference: MONITORING."
+          ]
+        : [
+            "CAINE CORE ONLINE.",
+            "BUILD 0000.05",
+            "System initialization complete.",
+            "Core status: STABLE.",
+            "External interference: MONITORING."
+          ];
 
-setInterval(
-    () => {
-
-        let chance =
-            Math.random();
-
-
-        /*
-         * 50% вероятность появления
-         * при каждой проверке.
-         *
-         * Это пока удобно для тестирования.
-         */
-
-        if (chance < 0.5) {
-
-            createScarab();
-
+    typeMessage(intro, 34, () => {
+        if (!savedName) {
+            nameInput.hidden = false;
+            nameInput.focus();
         }
+        setTimeout(() => {
+            if (Math.random() < 0.42) {
+                showAbelMessage("A-01 // SECURITY MONITORING ACTIVE.", 2200);
+                securityActive = true;
+                localStorage.setItem("caine_abel_seen", "1");
+            }
+        }, 900);
+    });
+}
 
-    },
-    7000
-);
+function saveName() {
+    const value = nameInput.value.trim();
+    if (!value) return;
+    savedName = value.slice(0, 24);
+    localStorage.setItem("caine_user", savedName);
+    localStorage.setItem("savedName", savedName);
+    nameInput.hidden = true;
+    typeMessage([
+        `Identity stored.`,
+        `Welcome, ${savedName}.`
+    ], 40, () => {
+        if (Math.random() < 0.55) {
+            showAbelMessage("A-01 // USER IDENTIFICATION CONFIRMED.", 2100);
+            securityActive = true;
+            localStorage.setItem("caine_abel_seen", "1");
+        }
+    });
+}
 
+nameInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") saveName();
+});
 
 /* =========================================
-   ПЕРВЫЙ ЗАПУСК
+   CORE INTERACTION
    ========================================= */
+function caineClick() {
+    clickCount++;
+    localStorage.setItem("caine_clicks", clickCount);
 
-setTimeout(
-    startCaine,
-    1000
-);
+    if (clickCount === 1) {
+        typeMessage(["You clicked me.", "I noticed."], 42);
+        return;
+    }
+    if (clickCount === 2) {
+        typeMessage(["Again?", "Curious."], 42);
+        return;
+    }
+    if (clickCount === 3) {
+        typeMessage(["Please refrain from excessive interaction."], 38);
+        return;
+    }
+    if (clickCount === 4) {
+        typeMessage(["That is unnecessary."], 38);
+        return;
+    }
+    if (clickCount === 5) {
+        typeMessage(["I believe you have made your point."], 38);
+        setTimeout(() => showAbelMessage("A-01 // INPUT FREQUENCY IS WITHIN MONITORING RANGE.", 2200), 650);
+        securityActive = true;
+        localStorage.setItem("caine_abel_seen", "1");
+        return;
+    }
+
+    triggerReaction();
+}
+
+caine.addEventListener("click", caineClick);
+caine.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        caineClick();
+    }
+});
+
+/* =========================================
+   DEVELOPMENT LOGS BUTTON
+   ========================================= */
+logsButton.hidden = false;
+setTimeout(() => logsButton.classList.add("visible"), 1500);
+logsButton.addEventListener("click", () => {
+    window.location.href = "logs.html";
+});
+
+/* =========================================
+   IDLE ACTIVITY
+   ========================================= */
+setInterval(() => {
+    if (document.hidden || isTyping || Math.random() > 0.18) return;
+    const idle = [
+        "Checking system status...",
+        "Monitoring user activity...",
+        "Waiting for input...",
+        "All processes are running.",
+        "...Still here?"
+    ];
+    typeMessage([randomItem(idle)], 38);
+}, 30000);
+
+/* =========================================
+   START
+   ========================================= */
+setTimeout(startCaine, 650);
