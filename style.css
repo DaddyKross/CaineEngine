@@ -1,12 +1,11 @@
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
-    background: black;
-    color: white;
+    background: #000;
+    color: #fff;
     height: 100vh;
+    min-height: 520px;
     overflow: hidden;
     font-family: "Courier New", monospace;
 }
@@ -16,7 +15,6 @@ body::after {
     position: fixed;
     inset: 0;
     pointer-events: none;
-
     background: repeating-linear-gradient(
         0deg,
         rgba(255,255,255,.03),
@@ -24,613 +22,151 @@ body::after {
         transparent 1px,
         transparent 3px
     );
-
     z-index: 100;
 }
 
-
-/* =========================================
-   ВЕРСИЯ
-   ========================================= */
-
 #version {
     position: absolute;
-
     top: 20px;
     left: 25px;
-
     color: #777;
-
     font-size: 14px;
     letter-spacing: 3px;
-
+    line-height: 1.6;
     z-index: 10;
 }
 
-
-/* =========================================
-   ВЕРХНИЙ ИНТЕРФЕЙС
-   ========================================= */
-
 #topInterface {
     position: absolute;
-
     top: calc(38% - 120px);
     left: 50%;
-
     transform: translateX(-50%);
-
     z-index: 30;
 }
 
-#logsButton {
+#logsButton, button {
     padding: 10px 20px;
-
-    background: black;
+    background: #000;
     color: red;
-
     border: 1px solid red;
-
     font-family: "Courier New", monospace;
-
     letter-spacing: 2px;
-
     cursor: pointer;
-
-    opacity: 0;
-
-    transition:
-        opacity 1s,
-        background .2s,
-        color .2s;
+    transition: opacity 1s, background .2s, color .2s;
 }
 
-#logsButton.visible {
-    opacity: 1;
-}
-
-#logsButton:hover {
-    background: red;
-    color: black;
-}
-
-
-/* =========================================
-   CAINE CORE
-   ========================================= */
+#logsButton { opacity: 0; }
+#logsButton.visible { opacity: 1; }
+#logsButton:hover, button:hover { background: red; color: #000; }
 
 #caine {
     position: absolute;
-
     top: 38%;
     left: 50%;
-
     width: 70px;
     height: 70px;
-
     transform: translate(-50%, -50%);
-
     background: red;
-
     border-radius: 50%;
-
-    box-shadow:
-        0 0 15px red,
-        0 0 40px red,
-        0 0 80px red;
-
+    box-shadow: 0 0 15px red, 0 0 40px red, 0 0 80px red;
     cursor: pointer;
-
     animation: cainePulse 2s infinite;
-
     z-index: 5;
+    outline: none;
 }
+
+#caine:focus-visible { box-shadow: 0 0 0 3px #fff, 0 0 25px red, 0 0 60px red; }
 
 @keyframes cainePulse {
-
-    0% {
-        opacity: .7;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: .7;
-    }
+    0%, 100% { opacity: .7; }
+    50% { opacity: 1; }
 }
-
-
-/* =========================================
-   ТЕРМИНАЛ
-   ========================================= */
 
 #terminal {
     position: absolute;
-
     top: 52%;
     left: 50%;
-
     transform: translateX(-50%);
-
-    width: 100%;
-
+    width: min(900px, 94vw);
     text-align: center;
-
     z-index: 10;
 }
 
 #text {
-    height: 120px;
-
+    min-height: 120px;
     font-size: 18px;
-
     line-height: 1.7;
+    overflow-wrap: anywhere;
 }
 
+.cainePersonal {
+    color: #ff3030;
+    text-shadow: 0 0 5px rgba(255,0,0,.5), 0 0 12px rgba(255,0,0,.2);
+}
 
-/* =========================================
-   ИМЯ ПОЛЬЗОВАТЕЛЯ
-   ========================================= */
+.caineUnusual { color: #ff8fb3; }
 
 #nameInput {
     margin-top: 20px;
-
     width: 240px;
-
+    max-width: 90%;
     padding: 10px;
-
-    background: black;
-    color: white;
-
+    background: #000;
+    color: #fff;
     border: 1px solid red;
-
     font-family: "Courier New", monospace;
-
     text-align: center;
 }
 
-#nameInput:focus {
-    outline: none;
+#nameInput:focus { outline: none; box-shadow: 0 0 10px red; }
 
-    box-shadow: 0 0 10px red;
-}
-
-
-/* =========================================
-   СТАТУС
-   ========================================= */
+#nameInput[hidden], #logsButton[hidden] { display: none; }
 
 #statusBar {
     position: absolute;
-
     bottom: 20px;
-
     width: 100%;
-
     display: flex;
-
     justify-content: center;
-
-    gap: 50px;
-
+    flex-wrap: wrap;
+    gap: 18px 50px;
+    padding: 0 12px;
     color: #555;
-
     font-size: 13px;
-
     letter-spacing: 2px;
-
     z-index: 10;
 }
 
-
-/* =========================================
-   СЛОЙ БАГОВ
-   ========================================= */
-
-#bugLayer {
+/* A-01's messages deliberately use a separate blue channel. */
+#abelMessage {
     position: fixed;
-
     inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 40;
+    transition: opacity .35s;
+}
 
+#abelMessage.visible { opacity: 1; }
+
+#abelText {
     width: 100%;
-    height: 100%;
-
-    pointer-events: none;
-
-    overflow: hidden;
-
-    z-index: 20;
-}
-
-
-/* =========================================
-   СКАРАБЕЙ
-   ========================================= */
-
-.scarab {
-    position: absolute;
-
-    width: 50px;
-    height: 50px;
-
-    pointer-events: none;
-
-    /*
-     * Внешний контейнер отвечает
-     * только за движение.
-     */
-
-    animation:
-        scarabMove var(--move-time) linear forwards;
-}
-
-
-/*
- * Внутренняя часть отвечает
- * за поворот и небольшое покачивание.
- */
-
-.scarab-visual {
-    position: absolute;
-
-    width: 50px;
-    height: 50px;
-
-    transform-origin: center center;
-
-    filter:
-        drop-shadow(0 0 4px #8a2be2)
-        drop-shadow(0 0 8px #8a2be2);
-
-    animation:
-        scarabWalk .18s infinite alternate;
-}
-
-
-/* =========================================
-   ТЕЛО
-   ========================================= */
-
-.scarab-body {
-    position: absolute;
-
-    left: 12px;
-    top: 12px;
-
-    width: 26px;
-    height: 26px;
-
-    background: #8a2be2;
-
-    border: 2px solid #42105f;
-
-    border-radius: 50%;
-
-    z-index: 2;
-}
-
-
-/*
- * Центральная линия между надкрыльями.
- */
-
-.scarab-body::after {
-    content: "";
-
-    position: absolute;
-
-    top: 2px;
-    bottom: 2px;
-
-    left: 50%;
-
-    width: 2px;
-
-    transform: translateX(-50%);
-
-    background: #42105f;
-}
-
-
-/* =========================================
-   ГОЛОВА
-   ========================================= */
-
-.scarab-head {
-    position: absolute;
-
-    left: 18px;
-    top: 5px;
-
-    width: 14px;
-    height: 14px;
-
-    background: #6f1db5;
-
-    border: 2px solid #42105f;
-
-    border-radius: 50%;
-
-    z-index: 4;
-}
-
-
-/* =========================================
-   ГЛАЗКИ
-   ========================================= */
-
-.scarab-head::before,
-.scarab-head::after {
-    content: "";
-
-    position: absolute;
-
-    top: 3px;
-
-    width: 3px;
-    height: 3px;
-
-    background: #e4b8ff;
-
-    border-radius: 50%;
-}
-
-.scarab-head::before {
-    left: 2px;
-}
-
-.scarab-head::after {
-    right: 2px;
-}
-
-
-/* =========================================
-   УСИКИ
-   ========================================= */
-
-.scarab-antenna {
-    position: absolute;
-
-    width: 10px;
-    height: 2px;
-
-    background: #8a2be2;
-
-    border-radius: 2px;
-
-    z-index: 3;
-}
-
-
-/* Левый усик */
-
-.scarab-antenna.left {
-    left: 18px;
-    top: 7px;
-
-    transform-origin: right center;
-
-    transform: rotate(-45deg);
-}
-
-
-/* Правый усик */
-
-.scarab-antenna.right {
-    left: 28px;
-    top: 7px;
-
-    transform-origin: left center;
-
-    transform: rotate(45deg);
-}
-
-
-/* =========================================
-   ШЕСТЬ ЛАПОК
-   ========================================= */
-
-.scarab-leg {
-    position: absolute;
-
-    width: 16px;
-    height: 2px;
-
-    background: #8a2be2;
-
-    border-radius: 2px;
-
-    z-index: 1;
-}
-
-
-/* =========================================
-   ЛЕВЫЕ ЛАПКИ
-   ========================================= */
-
-/*
- * Центр тела:
- *
- *        25px
- *          ↓
- *      ┌──────┐
- *      │ BODY │
- *      └──────┘
- *
- * Лапки начинаются от левого края тела.
- */
-
-.scarab-leg.left-1 {
-    left: 0;
-    top: 17px;
-
-    transform-origin: right center;
-    transform: rotate(25deg);
-}
-
-.scarab-leg.left-2 {
-    left: 0;
-    top: 25px;
-
-    transform-origin: right center;
-    transform: rotate(0deg);
-}
-
-.scarab-leg.left-3 {
-    left: 0;
-    top: 33px;
-
-    transform-origin: right center;
-    transform: rotate(-25deg);
-}
-
-
-/* =========================================
-   ПРАВЫЕ ЛАПКИ
-   ========================================= */
-
-.scarab-leg.right-1 {
-    left: 34px;
-    top: 17px;
-
-    transform-origin: left center;
-    transform: rotate(-25deg);
-}
-
-.scarab-leg.right-2 {
-    left: 34px;
-    top: 25px;
-
-    transform-origin: left center;
-    transform: rotate(0deg);
-}
-
-.scarab-leg.right-3 {
-    left: 34px;
-    top: 33px;
-
-    transform-origin: left center;
-    transform: rotate(25deg);
-}
-
-/* =========================================
-   ДВИЖЕНИЕ СКАРАБЕЯ
-   ========================================= */
-
-@keyframes scarabMove {
-
-    from {
-        transform: translate(0, 0);
-    }
-
-    to {
-        transform:
-            translate(
-                var(--distance-x),
-                var(--distance-y)
-            );
-    }
-}
-
-
-/* =========================================
-   ПОКАЧИВАНИЕ ПРИ ХОДЬБЕ
-   ========================================= */
-
-@keyframes scarabWalk {
-
-    from {
-        margin-top: -1px;
-    }
-
-    to {
-        margin-top: 1px;
-    }
-}
-
-
-/* =========================================
-   АРХИВ РАЗРАБОТЧИКОВ
-   ========================================= */
-
-#archive {
-    position: absolute;
-
-    top: 120px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    width: 600px;
-
     text-align: center;
-
-    z-index: 10;
+    color: #78cfff;
+    font-size: 15px;
+    line-height: 1.8;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px rgba(120,207,255,.65), 0 0 16px rgba(120,207,255,.35);
 }
 
-#archive h2 {
-    color: red;
-
-    letter-spacing: 3px;
-}
-
-.file {
-    margin: 20px;
-
-    cursor: pointer;
-
-    color: white;
-}
-
-.file:hover {
-    color: red;
-}
-
-.locked {
-    color: #555;
-}
-
-#content {
-    margin-top: 40px;
-
-    padding-top: 20px;
-
-    border-top: 1px solid #333;
-
-    text-align: left;
-}
-
-pre {
-    font-family: "Courier New", monospace;
-
-    color: #ddd;
-
-    white-space: pre-wrap;
-}
-
-
-/* =========================================
-   КНОПКИ
-   ========================================= */
-
-button {
-    background: black;
-
-    color: red;
-
-    border: 1px solid red;
-
-    padding: 10px 30px;
-
-    font-family: "Courier New", monospace;
-
-    cursor: pointer;
-}
-
-button:hover {
-    background: red;
-
-    color: black;
+@media (max-width: 600px) {
+    #version { top: 14px; left: 14px; font-size: 11px; }
+    #caine { width: 62px; height: 62px; }
+    #text { font-size: 15px; }
+    #statusBar { font-size: 9px; gap: 10px 18px; letter-spacing: 1px; }
+    #abelText { font-size: 12px; }
 }
