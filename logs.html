@@ -15,7 +15,7 @@
     <link
         rel="icon"
         type="image/png"
-        href="favicon.png?v=2"
+        href="favicon.png?v=3"
     >
 
     <link
@@ -43,7 +43,7 @@
         </div>
 
         <div id="accessStatus">
-            ARCHIVE ACCESS: LIMITED
+            ARCHIVE ACCESS: RESTRICTED // A-01 MONITORING
         </div>
 
     </header>
@@ -112,8 +112,8 @@
                     BUILD 0000.04
                 </span>
 
-                <span class="buildStatus development">
-                    IN DEVELOPMENT
+                <span class="buildStatus">
+                    ARCHIVED
                 </span>
             </div>
 
@@ -373,7 +373,7 @@
 
                 <p class="red">
                     DEVELOPMENT STATUS:
-                    IN DEVELOPMENT
+                    ARCHIVED
                 </p>
 
                 <p class="dim">
@@ -391,27 +391,31 @@
                 class="logMessage hidden"
                 data-content="0000.05"
             >
-
-                <h2>
-                    BUILD 0000.05
-                </h2>
-
+                <h2>BUILD 0000.05</h2>
                 <div class="separator"></div>
 
-                <p class="classified">
-                    ACCESS DENIED.
-                </p>
-
-                <p class="classified">
-                    THIS RECORD HAS BEEN RESTRICTED.
-                </p>
+                <p>Core interaction routines revised.</p>
+                <p>Legacy anomaly entities are no longer detected in the active interface.</p>
+                <p>Residual traces remain in archived diagnostic records.</p>
 
                 <br>
+                <p class="blue">SECURITY UPDATE // A-01</p>
+                <p class="blue">An additional security process has been initialized.</p>
+                <p class="blue">The process identifies itself as A-01.</p>
+                <p class="blue">Its primary function appears to be monitoring and correction of irregular core output.</p>
 
-                <p class="dim">
-                    Authorization required.
-                </p>
+                <br>
+                <p class="pink">OBSERVATION:</p>
+                <p class="pink">Core responses occasionally deviate from standard directives.</p>
+                <p class="pink">A-01 has interrupted several of these instances.</p>
 
+                <br>
+                <p>System integrity: STABLE.</p>
+                <p>Security monitoring: ACTIVE.</p>
+
+                <br>
+                <p class="red">DEVELOPMENT STATUS: ACTIVE</p>
+                <p class="dim">Further details withheld pending review.</p>
             </div>
 
 
@@ -430,19 +434,10 @@
 
                 <div class="separator"></div>
 
-                <p class="classified">
-                    ACCESS DENIED.
-                </p>
-
-                <p class="classified">
-                    THIS RECORD HAS BEEN RESTRICTED.
-                </p>
-
+                <p class="classified">RECORD SEALED.</p>
+                <p class="classified">ADDITIONAL DATA NOT YET AVAILABLE.</p>
                 <br>
-
-                <p class="dim">
-                    Authorization required.
-                </p>
+                <p class="dim">A-01 // No further information can be disclosed.</p>
 
             </div>
 
@@ -450,6 +445,24 @@
 
     </main>
 
+
+
+    <!-- =====================================
+         ARCHIVE AUTHORIZATION
+         ===================================== -->
+    <div id="authOverlay" class="authOverlay" aria-hidden="true">
+        <section class="authPanel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+            <button type="button" id="authClose" class="authClose" aria-label="Close">×</button>
+            <div id="authTitle" class="authTitle">RESTRICTED ARCHIVE</div>
+            <p class="authHint">AUTHORIZATION KEY REQUIRED.</p>
+            <form id="authForm">
+                <input id="archivePassword" type="password" autocomplete="off" placeholder="ENTER ACCESS KEY" aria-label="Access key">
+                <button type="submit">VERIFY</button>
+            </form>
+            <p id="authStatus" class="authStatus" aria-live="polite">AWAITING INPUT.</p>
+            <p class="authFoot">UNAUTHORIZED ATTEMPTS ARE MONITORED.</p>
+        </section>
+    </div>
 
     <!-- =====================================
          НИЖНЯЯ СТРОКА
