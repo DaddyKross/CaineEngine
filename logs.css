@@ -436,3 +436,62 @@ footer {
     }
 
 }
+
+/* =========================================
+   RESTRICTED ARCHIVE AUTHORIZATION
+   ========================================= */
+.authOverlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,.88);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s, visibility .25s;
+}
+.authOverlay.visible { opacity: 1; visibility: visible; }
+.authPanel {
+    position: relative;
+    width: min(460px, 100%);
+    padding: 38px 30px 30px;
+    border: 1px solid #555;
+    background: #050505;
+    text-align: center;
+    box-shadow: 0 0 35px rgba(120,207,255,.08);
+}
+.authTitle { color: #78cfff; letter-spacing: 3px; font-size: 16px; }
+.authHint, .authFoot { color: #666; font-size: 11px; letter-spacing: 1.5px; }
+.authHint { margin: 18px 0 22px; }
+.authFoot { margin: 22px 0 0; }
+#authForm { display: flex; gap: 8px; }
+#archivePassword {
+    min-width: 0;
+    flex: 1;
+    padding: 11px 10px;
+    color: #fff;
+    background: #000;
+    border: 1px solid #444;
+    font: 13px "Courier New", monospace;
+    letter-spacing: 1px;
+}
+#archivePassword:focus { outline: none; border-color: #78cfff; box-shadow: 0 0 8px rgba(120,207,255,.25); }
+#authForm button { border-color: #78cfff; color: #78cfff; padding: 10px 14px; font-size: 11px; }
+#authForm button:hover { background: #78cfff; color: #000; }
+#authForm button:disabled, #archivePassword:disabled { opacity: .35; cursor: not-allowed; }
+.authStatus { min-height: 34px; margin: 18px 0 0; color: #78cfff; font-size: 11px; line-height: 1.6; letter-spacing: 1px; }
+.authStatus.warning { color: #ff7777; }
+.authClose { position: absolute; top: 8px; right: 10px; padding: 2px 8px; border: 0; color: #777; font-size: 24px; }
+.authClose:hover { background: transparent; color: #fff; }
+.build.unlockedStatus { cursor: pointer; }
+.buildStatus.unlockedStatus { color: #78cfff; }
+.blue { color: #78cfff; }
+
+@media (max-width: 500px) {
+    .authPanel { padding: 34px 18px 24px; }
+    #authForm { flex-direction: column; }
+    #authForm button { width: 100%; }
+}
