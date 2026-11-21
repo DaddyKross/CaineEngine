@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAINE ENGINE — Build 0000.06</title>
+    <link rel="icon" href="favicon/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="favicon/favicon-32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="version">CAINE ENGINE<br>BUILD 0000.06</div>
+
+    <div id="topInterface">
+        <button id="logsButton" hidden>DEVELOPMENT LOGS</button>
+    </div>
+
+    <div id="caine" role="button" tabindex="0" aria-label="CAINE Core"></div>
+    <button id="secretEntry" type="button" aria-label="Unknown directory" title="">?</button>
+
+    <main id="terminal">
+        <div id="text" aria-live="polite"></div>
+        <input id="nameInput" type="text" maxlength="24" autocomplete="off"
+               placeholder="ENTER YOUR NAME..." aria-label="Enter your name" hidden>
+        <div id="chatInterface" hidden>
+            <div id="chatPrompt">YOU MAY SPEAK. I AM LISTENING.</div>
+            <form id="chatForm" autocomplete="off">
+                <input id="chatInput" type="text" maxlength="280" autocomplete="off"
+                       placeholder="TYPE A MESSAGE..." aria-label="Message CAINE">
+                <button id="sendButton" type="submit">SEND</button>
+            </form>
+            <button id="memoryToggle" type="button" aria-pressed="true">MEMORY: ACTIVE</button>
+        </div>
+    </main>
+
+    <div id="abelMessage" aria-live="polite" aria-atomic="true">
+        <div id="abelText"></div>
+    </div>
+
+    <div id="statusBar">
+        <span>STATUS : STABLE</span>
+        <span>CORE : ACTIVE</span>
+        <span>BUILD : 0000.06</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
