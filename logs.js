@@ -183,6 +183,6 @@ if (unlocked) {
     unlockArchive();
 } else {
     accessStatus.textContent = "ARCHIVE ACCESS: LIMITED // A-01 MONITORING";
-}
+
 attachBuildHandlers();
 showBuild("0000.04");
